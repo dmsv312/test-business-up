@@ -9,6 +9,7 @@ namespace App\Domain\Enums;
 enum ClientType: string
 {
     case Company = 'ooo';
+    case JointStock = 'ao';
     case NonProfit = 'ano';
     case Entrepreneur = 'ip';
 
@@ -16,6 +17,7 @@ enum ClientType: string
     {
         return match ($this) {
             self::Company => 'ООО',
+            self::JointStock => 'АО',
             self::NonProfit => 'АНО',
             self::Entrepreneur => 'ИП',
         };

@@ -11,7 +11,7 @@ return [
     /*
      * Оплата старше этого числа дней с незакрытым актом → «требует внимания».
      */
-    'act_attention_days' => (int) env('ACT_ATTENTION_DAYS', 30),
+    'act_attention_days' => (int) env('ACT_ATTENTION_DAYS', 21),
 
     /*
      * Наш расчётный счёт в выписке. По нему парсер определяет направление
