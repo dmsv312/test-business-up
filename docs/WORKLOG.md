@@ -85,6 +85,17 @@
   JSON (формы совпадают с тем, что потребляют компоненты). Визуальный e2e — на этапе
   docker (полный стек одной командой).
 
+## Этап 8 — docker-compose и финал README ✅
+- `docker-compose.yml`: db (PostgreSQL 16, healthcheck) + app (PHP-FPM, миграции+сиды
+  в entrypoint) + web (nginx: отдаёт собранный SPA и проксирует `/api` на PHP-FPM).
+- `backend/Dockerfile` + `backend/docker/entrypoint.sh` (ключ, ожидание БД, migrate
+  --seed); `docker/web.Dockerfile` (node-сборка SPA → nginx) + `docker/nginx.conf`.
+- Сидер сделан идемпотентным (рестарт не плодит дубли).
+- Финальный `README.md`: запуск (docker / локально), архитектура, сущности и связи,
+  где логика, логика статусов, API, допущения, стек, структура.
+- **Проверено вживую:** `docker compose up --build` поднимает стек; через nginx на
+  PostgreSQL работают summary/payments/projects, SPA рендерится (скриншоты сняты
+  Playwright), `PATCH` акта закрывает и персистит (закрытых 12→13).
+
 ## Следующий шаг
-Этап 8 — docker-compose (app + nginx + postgres + frontend, всё одной командой) +
-финал README (как запустить, архитектура, сущности, допущения). Затем этап 9 — деплой.
+Этап 9 — деплой на Laravel Forge (ждёт бесплатный домен от владельца).

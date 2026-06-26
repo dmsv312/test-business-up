@@ -1,0 +1,6 @@
+# Контекст для web.Dockerfile (корень). Нужен только frontend/ + docker/.
+backend
+docs
+**/node_modules
+**/dist
+**/.git
