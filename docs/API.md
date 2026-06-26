@@ -63,18 +63,19 @@ REST API дашборда. **Contract-first**: документ описывае
 ```
 
 ## GET /api/projects
-Проекты с агрегатами. Доп. фильтры: `client_id`, `direction`, `status`, `q`.
+Проекты с агрегатами (проект = тело работ по клиенту). Доп. фильтры: `client_id`,
+`status`, `q`. Направления работ проекта выводятся из его оплат (`directions`).
 
 ```json
 {
   "data": [
     {
-      "id": 5, "name": "Облако-Имидж — SERM",
+      "id": 1, "name": "Облако-Имидж",
       "client": { "id": 1, "name": "ООО «Облако-Имидж»" },
-      "direction": "serm", "direction_label": "SERM",
-      "contract_number": "214", "status": "active", "status_label": "В работе",
-      "payments_count": 1, "total_amount": "19800.00",
-      "acts": { "closed": 0, "open": 1, "needs_attention": 0 }
+      "status": "active", "status_label": "В работе",
+      "directions": ["serm", "context_ads"],
+      "payments_count": 2, "total_amount": "66800.00",
+      "acts": { "closed": 0, "open": 2, "needs_attention": 1 }
     }
   ]
 }
@@ -89,7 +90,8 @@ REST API дашборда. **Contract-first**: документ описывае
     {
       "id": 12, "payment_date": "2026-07-18", "amount": "19800.00",
       "client": { "id": 1, "name": "ООО «Облако-Имидж»", "inn": "5031198742" },
-      "project": { "id": 5, "name": "Облако-Имидж — SERM", "direction_label": "SERM" },
+      "project": { "id": 1, "name": "Облако-Имидж" },
+      "work_direction": "serm", "work_direction_label": "SERM",
       "service_stage": "аванс", "invoice_number": "728", "contract_number": "214",
       "payment_purpose": "Оплата по сч. № 728 …, услуги SERM …",
       "act": {

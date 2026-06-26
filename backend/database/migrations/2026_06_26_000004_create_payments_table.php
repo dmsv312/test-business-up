@@ -20,12 +20,14 @@ return new class extends Migration
             $table->date('payment_date');
             $table->decimal('amount', 15, 2);
             $table->text('payment_purpose');
+            $table->string('work_direction')->nullable();   // ProjectDirection (тип услуги)
             $table->string('service_stage')->nullable();    // аванс / этап 1 / финальный платёж
             $table->string('invoice_number')->nullable();
             $table->string('contract_number')->nullable();
             $table->timestamps();
 
             $table->index('payment_date');
+            $table->index('work_direction');
         });
     }
 

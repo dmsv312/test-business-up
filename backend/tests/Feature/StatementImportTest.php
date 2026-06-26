@@ -34,17 +34,26 @@ class StatementImportTest extends TestCase
     public function test_builds_domain_entities_from_revenue_only(): void
     {
         $this->assertSame(19, Client::count());
+        $this->assertSame(19, Project::count());
         $this->assertSame(24, Payment::count());
         $this->assertSame(24, Act::count());
         $this->assertSame('1405820.00', number_format((float) Payment::sum('amount'), 2, '.', ''));
     }
 
-    public function test_deduplicates_clients_by_inn(): void
+    public function test_deduplicates_clients_and_groups_payments_into_one_project(): void
     {
-        // Облако-Имидж заплатил дважды → один клиент, две оплаты, два проекта (разные направления).
+        // Облако-Имидж заплатил дважды → один клиент, один проект, две оплаты.
         $oblako = Client::where('inn', '5031198742')->sole();
         $this->assertSame(2, $oblako->payments()->count());
-        $this->assertSame(2, $oblako->projects()->count());
+        $this->assertSame(1, $oblako->projects()->count());
+
+        $project = $oblako->projects()->sole();
+        $this->assertSame(2, $project->payments()->count());
+        // Направление работ — атрибут оплаты (здесь SERM и контекстная реклама).
+        $directions = $project->payments()
+            ->pluck('work_direction')
+            ->map(fn ($d) => $d->value)->sort()->values()->all();
+        $this->assertSame(['context_ads', 'serm'], $directions);
     }
 
     public function test_links_payment_to_its_raw_operation(): void
@@ -77,9 +86,9 @@ class StatementImportTest extends TestCase
         });
     }
 
-    public function test_project_named_and_grouped_by_contract(): void
+    public function test_project_named_after_client(): void
     {
-        $serm = Project::where('contract_number', '214')->sole();
-        $this->assertSame('Облако-Имидж — SERM', $serm->name);
+        $oblako = Client::where('inn', '5031198742')->sole();
+        $this->assertSame('Облако-Имидж', $oblako->projects()->sole()->name);
     }
 }

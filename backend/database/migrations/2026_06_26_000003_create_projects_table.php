@@ -5,9 +5,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Проект = клиент + направление работ. Группирует несколько оплат/этапов.
- * Выводится из выписки: по № договора, где он есть; иначе по паре
- * (клиент + направление из назначения платежа).
+ * Проект = тело работ по клиенту (одна запись на клиента). Группирует все его
+ * оплаты и этапы. Направление работ и № договора — атрибуты оплаты, т.к. один
+ * проект может охватывать разные услуги (реклама, SEO, разработка и т.д.).
  */
 return new class extends Migration
 {
@@ -17,12 +17,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('direction');                    // ProjectDirection
-            $table->string('contract_number')->nullable();
             $table->string('status')->default('active');     // ProjectStatus
             $table->timestamps();
-
-            $table->index('direction');
         });
     }
 

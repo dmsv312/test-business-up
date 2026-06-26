@@ -85,24 +85,14 @@ class StatementImporter
     }
 
     /**
-     * Проект = клиент + направление работ. Группировка: по № договора, где он
-     * есть; иначе по паре (клиент + направление). Несколько оплат с тем же
-     * ключом попадают в один проект.
+     * Проект = тело работ по клиенту (одна запись на клиента). Все оплаты клиента
+     * группируются в один проект; направление работ хранится в самой оплате.
      */
     private function resolveProject(Client $client, ParsedOperation $op): Project
     {
-        $name = $this->shortName($op->counterpartyName).' — '.$op->projectDirection->label();
-
-        if ($op->contractNumber !== null) {
-            return Project::firstOrCreate(
-                ['client_id' => $client->id, 'contract_number' => $op->contractNumber],
-                ['name' => $name, 'direction' => $op->projectDirection, 'status' => ProjectStatus::Active],
-            );
-        }
-
         return Project::firstOrCreate(
-            ['client_id' => $client->id, 'direction' => $op->projectDirection, 'contract_number' => null],
-            ['name' => $name, 'status' => ProjectStatus::Active],
+            ['client_id' => $client->id],
+            ['name' => $this->shortName($op->counterpartyName), 'status' => ProjectStatus::Active],
         );
     }
 
@@ -115,6 +105,7 @@ class StatementImporter
             'payment_date' => $op->date,
             'amount' => $op->amount,
             'payment_purpose' => $op->purpose,
+            'work_direction' => $op->projectDirection,
             'service_stage' => $op->serviceStage,
             'invoice_number' => $op->invoiceNumber,
             'contract_number' => $op->contractNumber,
