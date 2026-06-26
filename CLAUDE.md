@@ -10,6 +10,7 @@
 - ТЗ: [`docs/brief/TASK.md`](docs/brief/TASK.md)
 - Мок-данные: [`docs/brief/bank_statement_project_data_clean.pdf`](docs/brief/)
 - Подробный план + архитектура: [`docs/PLAN.md`](docs/PLAN.md)
+- API-контракт (contract-first): [`docs/API.md`](docs/API.md)
 - Журнал работ: [`docs/WORKLOG.md`](docs/WORKLOG.md)
 
 ## Стек
