@@ -10,7 +10,7 @@ const store = useDashboardStore()
 const { summary, payments, paymentsMeta, loading } = storeToRefs(store)
 
 onMounted(async () => {
-  await store.loadClients()
+  await store.loadProjects() // тянет клиентов и проекты — оба нужны для фильтров
   await store.loadDashboard()
 })
 

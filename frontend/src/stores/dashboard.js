@@ -8,7 +8,7 @@ import api from '@/api/client'
  */
 export const useDashboardStore = defineStore('dashboard', () => {
   const filters = reactive({
-    from: '', to: '', client_id: '', direction: '', act_status: '', q: '',
+    from: '', to: '', client_id: '', project_id: '', direction: '', act_status: '', q: '',
   })
 
   const summary = ref(null)

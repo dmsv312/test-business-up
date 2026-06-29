@@ -5,7 +5,7 @@ import { useDashboardStore } from '@/stores/dashboard'
 import { DIRECTIONS, ACT_STATUSES } from '@/constants'
 
 const store = useDashboardStore()
-const { filters, clients } = storeToRefs(store)
+const { filters, clients, projects } = storeToRefs(store)
 
 const apply = () => store.loadDashboard()
 
@@ -35,6 +35,14 @@ const field = 'rounded-md border border-slate-300 px-2.5 py-1.5 text-sm focus:bo
       <select v-model="filters.client_id" :class="field" @change="apply">
         <option value="">Все</option>
         <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.name }}</option>
+      </select>
+    </label>
+
+    <label class="flex flex-col gap-1 text-xs text-slate-500">
+      Проект
+      <select v-model="filters.project_id" :class="field" @change="apply">
+        <option value="">Все</option>
+        <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
       </select>
     </label>
 
