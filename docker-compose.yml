@@ -1,4 +1,5 @@
-# Полный стек одной командой: docker compose up --build → http://localhost:8080
+# Полный стек одной командой: docker compose up --build → http://127.0.0.1:8099
+# Прод-режим (APP_ENV=production); наружу — через Cloudflare Tunnel (business-up.dm312sv.online).
 services:
   db:
     image: postgres:16-alpine

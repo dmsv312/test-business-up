@@ -16,12 +16,16 @@
 ## Быстрый запуск (Docker)
 
 ```bash
-docker compose up --build      # → http://localhost:8080
+docker compose up --build      # → http://127.0.0.1:8099
 ```
 
 Поднимает PostgreSQL + Laravel API + nginx (отдаёт собранный Vue SPA и проксирует
 `/api`). Миграции и сиды из приложенной выписки выполняются автоматически. Открыть
-дашборд: **http://localhost:8080**.
+дашборд: **http://127.0.0.1:8099**.
+
+> `docker-compose.yml` настроен под текущий деплой: `APP_ENV=production`, сервис `web`
+> слушает `127.0.0.1:8099` (наружу отдаётся через Cloudflare Tunnel). Рабочая версия —
+> **https://business-up.dm312sv.online**.
 
 ## Локальная разработка (без Docker)
 
@@ -137,7 +141,12 @@ Docker Compose · smalot/pdfparser. Тестов: 35 (парсер, класси
 
 ```
 backend/    Laravel API (app/Domain — доменная логика, app/Http — API)
-frontend/   Vue 3 SPA (src/views, src/components, src/stores)
+frontend/   Vue 3 SPA (src/views: Дашборд/Проекты/Клиенты/Выписка; src/components, src/stores)
 docker/     nginx-конфиг и web-образ (сборка SPA + nginx)
 docs/       PLAN.md, API.md, WORKLOG.md, brief/ (ТЗ + выписка)
 ```
+
+Список оплат адаптивный: таблица на десктопе и карточки на узких экранах. Колонка
+«Проект» в таблице не дублируется (проект 1:1 равен клиенту — он на странице «Проекты»
+и в фильтрах). Статус акта показан плашкой с признаками «отправлен»/«подписан»;
+комментарий менеджера и переключение статусов редактируются прямо из списка.

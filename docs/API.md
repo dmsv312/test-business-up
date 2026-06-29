@@ -32,13 +32,13 @@ REST API дашборда. **Contract-first**: документ описывае
   "data": {
     "total_revenue": "1405820.00",
     "clients_count": 19,
-    "projects_count": 21,
+    "projects_count": 19,
     "payments_count": 24,
-    "closed_acts_amount": "0.00",
-    "open_acts_amount": "1405820.00",
-    "payments_without_sent_act": 7,
+    "closed_acts_amount": "771600.00",
+    "open_acts_amount": "634220.00",
+    "payments_without_sent_act": 6,
     "payments_sent_not_signed": 6,
-    "acts_needs_attention": 4,
+    "acts_needs_attention": 8,
     "filtered_out_operations": 23
   }
 }
@@ -82,7 +82,8 @@ REST API дашборда. **Contract-first**: документ описывае
 ```
 
 ## GET /api/payments
-Оплаты с фильтрами (см. общие) + `sort`, `page`. Каждая — с вложенным актом.
+Оплаты с фильтрами (см. общие) + `page`. Сортировка фиксированная: по дате оплаты
+убыванием, затем по `id`. Каждая — с вложенным актом.
 
 ```json
 {

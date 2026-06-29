@@ -14,7 +14,7 @@
 - Журнал работ: [`docs/WORKLOG.md`](docs/WORKLOG.md)
 
 ## Стек
-- Backend: **Laravel 13** (PHP 8.4), REST API, без авторизации.
+- Backend: **Laravel 13** (PHP 8.3+, рантайм 8.4), REST API, без авторизации.
 - Frontend: **Vue 3** SPA (Vite + Pinia + Tailwind) — отдельным приложением.
 - БД: **PostgreSQL 16** (в docker-compose); тесты и локальная разработка — **SQLite**.
 - Инфраструктура: **Docker Compose** (вся, включая БД).
@@ -44,16 +44,33 @@ PDF → StatementParser + OperationClassifier → bank_operations (сырой с
 backend/                 Laravel 13 API
   app/Domain/Enums/      ClientType, ProjectDirection, ProjectStatus,
                          OperationDirection, OperationCategory, ActStatus
-  app/Domain/Services/   StatementParser, OperationClassifier, ActStatusService,
-                         DashboardSummaryService (по мере сборки)
+  app/Domain/DTO/        ParsedOperation
+  app/Domain/Services/   StatementParser, OperationClassifier, PurposeAnalyzer,
+                         StatementImporter, ActStatusService, ActUpdater,
+                         DashboardSummaryService
+  app/Domain/Queries/    PaymentFilter (фильтры оплат на стороне БД, вкл. project_id)
   app/Models/            Client, BankOperation, Project, Payment, Act
   database/migrations/   доменная схема (clients/bank_operations/projects/payments/acts)
   routes/api.php         REST-эндпоинты
   config/dashboard.php   reference_date, act_attention_days, own_account
-frontend/                Vue 3 SPA (добавляется на этапе фронта)
-docker-compose.yml       app + nginx + db(pgsql) + frontend (добавляется)
+frontend/                Vue 3 SPA
+  src/views/             DashboardView, ProjectsView, ClientsView, OperationsView (Выписка)
+  src/components/        AppNav, SummaryCards, FiltersBar, PaymentsTable,
+                         ActStatusBadge, ActStatusCell, ActActions, CommentCell
+  src/stores/            dashboard (фильтры + данные)
+docker-compose.yml       db(pgsql 16) + app(Laravel, ./backend) + web(docker/web.Dockerfile,
+                         отдаёт собранный SPA + проксирует /api; слушает 127.0.0.1:8099)
 docs/                    PLAN.md, WORKLOG.md, brief/
 ```
+
+## UI (Vue SPA)
+Экраны: Дашборд (карточки-итоги, фильтры, список оплат), Проекты, Клиенты, Выписка
+(сырой слой). Список оплат (`PaymentsTable`) адаптивный: таблица на десктопе (`>=lg`)
+и карточки на узких экранах (`<lg`). Колонка «Проект» из таблицы убрана — проект 1:1
+равен клиенту. Логика акта вынесена в компоненты: `ActStatusCell` (плашка статуса +
+признаки отправлен/подписан), `ActActions` (кнопки переключения), `CommentCell`
+(инлайн-редактирование комментария менеджера). Фильтры (`FiltersBar`): период, юрлицо,
+**проект**, направление, статус акта, поиск.
 
 ## Команды
 ```bash
@@ -79,7 +96,10 @@ docker compose up -d
   логичными этапами (см. WORKLOG). Изолирован от родительского hh-bot репо.
 
 ## Деплой
-Laravel Forge — настраивается **в самом конце** (нужен бесплатный домен).
+Через `docker-compose` в прод-режиме (`APP_ENV=production`, `APP_DEBUG=false`,
+`APP_URL=https://business-up.dm312sv.online`). Сервис `web` слушает `127.0.0.1:8099`,
+наружу отдаётся через **собственный Cloudflare Tunnel** (аккаунт dm312sv, изолирован
+от gtmoffice-туннеля). Живой адрес — **https://business-up.dm312sv.online**.
 
 ## Текущий статус
 См. [`docs/WORKLOG.md`](docs/WORKLOG.md) — последний завершённый этап и следующий шаг.

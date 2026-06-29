@@ -56,7 +56,7 @@
 
 ## 3. Стек и решения (согласовано с владельцем)
 
-- **Backend:** Laravel 12 (PHP 8.4), только REST API (`routes/api.php`).
+- **Backend:** Laravel 13 (PHP 8.3+), только REST API (`backend/routes/api.php`).
 - **Frontend:** отдельный Vue 3 SPA (Vite + Pinia + Vue Router + Axios + Tailwind).
 - **БД:** PostgreSQL 16 (в docker-compose); SQLite — для тестов.
 - **Инфраструктура:** монорепо + `docker-compose.yml` (вся инфраструктура, включая БД).
@@ -64,7 +64,8 @@
 - **Сущность «Проект»** = тело работ по клиенту (одна запись на клиента); все оплаты
   клиента группируются в один проект, направление работ — атрибут оплаты.
 - **Авторизация:** отсутствует (ТЗ разрешает опустить).
-- **Деплой:** на свой сервер (Laravel Forge) — настраиваем в самом конце.
+- **Деплой:** `docker-compose` в прод-режиме на своём сервере, наружу через
+  Cloudflare Tunnel (`https://business-up.dm312sv.online`).
 
 ## 4. Архитектура слоёв
 
@@ -130,8 +131,8 @@ payment 1—1 act · bank_operation 0/1—1 payment.
 
 `«Сейчас»` = настраиваемая `REFERENCE_DATE` (config/env), по умолчанию **2026-08-14**
 (дата выписки), т.к. данные датированы будущим. Порог `N` = `ACT_ATTENTION_DAYS`
-(по умолчанию 30). Статус считается на лету при отдаче, плюс кэшируется в `acts.status`
-после правок (для фильтрации в БД).
+(по умолчанию 21). Статус кэшируется в `acts.status` (считается при сиде и после
+каждой правки через `ActStatusService`) — для фильтрации и сортировки в БД.
 
 ### DashboardSummaryService — итоги на backend
 Общая выручка, число проектов, число оплат, сумма по закрытым актам, сумма по
@@ -207,17 +208,27 @@ payment 1—1 act · bank_operation 0/1—1 payment.
 
 ## 10. Frontend (Vue 3 SPA)
 
-- **Страницы:** Дашборд (карточки-итоги + панель фильтров + таблица оплат),
-  Проекты, Клиенты. Возможна отдельная вкладка «Выписка» (сырой слой).
-- **Компоненты:** `SummaryCards`, `FiltersBar`, `PaymentsTable` (бейджи статусов +
-  кнопки «отправлен»/«подписан» → `PATCH`), `ProjectsTable`, `ClientsTable`.
-- **Состояние:** Pinia (стор фильтров + данных), Axios-клиент, debounce на поиск.
+- **Страницы (views):** Дашборд (карточки-итоги + панель фильтров + список оплат),
+  Проекты, Клиенты, Выписка (сырой слой). Таблицы проектов/клиентов свёрстаны inline
+  в `ProjectsView`/`ClientsView` (отдельных компонентов нет).
+- **Компоненты:** `AppNav`, `SummaryCards`, `FiltersBar` (фильтры: период, юрлицо,
+  **проект**, направление, статус акта, поиск), `PaymentsTable` — **адаптивный**:
+  таблица на десктопе (`>=lg`) и карточки на узких экранах (`<lg`); колонка «Проект»
+  убрана (проект 1:1 = клиент). Логика акта вынесена в `ActStatusCell` (плашка статуса
+  + признаки отправлен/подписан), `ActActions` (кнопки → `PATCH`), `CommentCell`
+  (инлайн-просмотр/редактирование комментария менеджера → `PATCH manager_comment`).
+  Плашка статуса — `ActStatusBadge`.
+- **Состояние:** Pinia (стор фильтров + данных, вкл. `project_id`), Axios-клиент,
+  debounce на поиск.
 - Tailwind, адаптивная вёрстка (плюс по ТЗ), визуал намеренно простой.
 
 ## 11. Docker / запуск
 
-`docker-compose.yml` поднимает: `app` (PHP-FPM Laravel), `nginx` (отдаёт API),
-`db` (PostgreSQL 16), `frontend` (Vite dev / собранная статика через nginx).
+`docker-compose.yml` поднимает три сервиса: `db` (PostgreSQL 16, healthcheck),
+`app` (PHP-FPM Laravel из `./backend`, миграции+сиды в entrypoint) и `web`
+(`docker/web.Dockerfile`: nginx отдаёт собранный Vue SPA и проксирует `/api` на `app`;
+слушает `127.0.0.1:8099`). Прод-режим: `APP_ENV=production`,
+`APP_URL=https://business-up.dm312sv.online`, наружу — через Cloudflare Tunnel.
 Цель: `git clone` → `docker compose up` → миграции+сиды автоматически → дашборд
 доступен. README с точными командами.
 
@@ -240,7 +251,8 @@ payment 1—1 act · bank_operation 0/1—1 payment.
 6. **feat(api):** контроллеры, ресурсы, Form Requests, маршруты + feature-тесты.
 7. **feat(frontend):** Vue SPA — дашборд, фильтры, таблицы, переключение статусов.
 8. **docs:** финал README (архитектура, сущности, связи, допущения), скриншоты.
-9. **chore(deploy):** деплой на Forge, прод-конфиг.
+9. **chore(deploy):** docker-compose в прод-режиме за Cloudflare Tunnel
+   (`https://business-up.dm312sv.online`).
 
 ## 14. Допущения (вести список для README)
 
