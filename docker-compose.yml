@@ -21,8 +21,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      APP_ENV: local
-      APP_DEBUG: "true"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: https://business-up.dm312sv.online
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: 5432
@@ -37,7 +38,7 @@ services:
     depends_on:
       - app
     ports:
-      - "8080:80"
+      - "127.0.0.1:8099:80"
 
 volumes:
   dbdata:
